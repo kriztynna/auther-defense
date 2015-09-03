@@ -1,6 +1,6 @@
 'use strict';
 
-app.controller('UserDetailCtrl', function ($scope, user, Story) {
+app.controller('UserDetailCtrl', function ($scope, user, Story, $rootScope) {
 	$scope.user = user;
 	$scope.newStory = new Story({author: $scope.user});
 	$scope.addStory = function () {
@@ -11,10 +11,12 @@ app.controller('UserDetailCtrl', function ($scope, user, Story) {
 		});
 	};
 	$scope.removeStory = function (story) {
-		story.destroy()
-		.then(function () {
-			var idx = $scope.user.stories.indexOf(story);
-			$scope.user.stories.splice(idx, 1);
-		});
+		if ($rootScope.isAdmin() || $rootScope.isMe(story.author)) {
+			story.destroy()
+			.then(function () {
+				var idx = $scope.user.stories.indexOf(story);
+				$scope.user.stories.splice(idx, 1);
+			});			
+		}
 	};
 });

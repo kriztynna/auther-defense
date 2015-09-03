@@ -1,11 +1,11 @@
 'use strict';
 
-app.directive('contenteditable', function () {
+app.directive('contenteditable', function ($rootScope) {
 	return {
 		restrict: 'A',
 		require: '?ngModel',
 		link: function (scope, element, attrs, ngModel) {
-			if (!ngModel) return;
+			if (!ngModel || !$rootScope.isAdmin()) return;
 			function read() {
 				ngModel.$setViewValue(element.html());
 			}

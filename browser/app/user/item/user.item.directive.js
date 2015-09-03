@@ -1,6 +1,6 @@
 'use strict';
 
-app.directive('userItem', function () {
+app.directive('userItem', function ($rootScope) {
 	return {
 		restrict: 'E',
 		templateUrl: '/browser/app/user/item/user.item.html',
@@ -20,9 +20,11 @@ app.directive('userItem', function () {
 				}, true);
 			}
 			scope.removeUser = function () {
-				scope.user.destroy().then(function () {
-					scope.user.isDestroyed = true;
-				});
+				if ($rootScope.isAdmin()) {
+					scope.user.destroy().then(function () {
+						scope.user.isDestroyed = true;
+					});					
+				}
 			};
 		}
 	}
