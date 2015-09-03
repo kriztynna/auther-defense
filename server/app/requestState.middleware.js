@@ -1,5 +1,6 @@
 'use strict'; 
 var secretToken = require('../auth/secrets').token;
+var bodyParser = require('body-parser');
 
 var router = require('express').Router(),
 	session = require('express-session'),
@@ -7,17 +8,9 @@ var router = require('express').Router(),
 
 var User = require('../api/users/user.model');
 
-router.use(function (req, res, next) {
-	var bodyString = '';
-	req.on('data', function (chunk) {
-		bodyString += chunk;
-	});
-	req.on('end', function () {
-		bodyString = bodyString || '{}';
-		req.body = eval('(' + bodyString + ')');
-		next();
-	});
-});
+router.use(bodyParser.json());
+router.use(bodyParser.urlencoded({extended: true}));
+
 
 router.use(session({
 	secret: secretToken,
