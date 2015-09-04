@@ -4,6 +4,7 @@ var router = require('express').Router(),
 	_ = require('lodash');
 
 var HttpError = require('../../utils/HttpError');
+var Auth = require('../../utils/auth.middleware');
 var Story = require('./story.model');
 
 router.param('id', function (req, res, next, id) {
@@ -25,6 +26,9 @@ router.get('/', function (req, res, next) {
 });
 
 router.post('/', function (req, res, next) {
+	if (req.user.equals(req.body.author)) next();
+	else Auth.assertAdmin(req, res, next);
+}, function (req, res, next) {
 	Story.create(req.body)
 	.then(function (story) {
 		return story.populateAsync('author');
@@ -44,6 +48,12 @@ router.get('/:id', function (req, res, next) {
 });
 
 router.put('/:id', function (req, res, next) {
+	if (req.user.equals(req.story.author)) next();
+	else Auth.assertAdmin(req, res, next);
+}, function (req, res, next) {
+	if (req.user.equals(req.story.author) && !req.user.isAdmin) {
+		delete req.body.author;
+	}
 	_.extend(req.story, req.body);
 	req.story.save()
 	.then(function (story) {
@@ -53,6 +63,9 @@ router.put('/:id', function (req, res, next) {
 });
 
 router.delete('/:id', function (req, res, next) {
+	if (req.user.equals(req.story.author)) next();
+	else Auth.assertAdmin(req, res, next);
+}, function (req, res, next) {
 	req.story.remove()
 	.then(function () {
 		res.status(204).end();
