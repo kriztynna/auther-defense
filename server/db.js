@@ -4,6 +4,15 @@ var mongoose = require('mongoose');
 var Promise = require('bluebird'); 
 Promise.promisifyAll(mongoose);
 
+// var options = {
+//   db: { native_parser: true },
+//   server: { poolSize: 5 },
+//   replset: { rs_name: 'myReplicaSetName' },
+//   user: 'myUserName',
+//   pass: 'myPassword'
+// }
+// mongoose.connect(uri, options);
+
 var databaseURI = 'mongodb://localhost:27017/auther';
 
 var db = mongoose.connect(databaseURI).connection;

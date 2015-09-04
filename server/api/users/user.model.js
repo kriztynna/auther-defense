@@ -7,6 +7,14 @@ var mongoose = require('mongoose'),
 var db = require('../../db');
 var Story = require('../stories/story.model');
 
+var crypto = require('crypto');
+
+function hashPwd (rawPwd) {
+	var salt = new Date().toString() + String(Math.floor(Math.random()*1000000));
+	var encrypted = crypto.createHash('sha1').update(salt + rawPwd).digest('hex');
+	return {salt: salt, pwd: encrypted};
+}
+
 var User = new mongoose.Schema({
 	_id: {
 		type: String,
@@ -24,7 +32,7 @@ var User = new mongoose.Schema({
 		required: true,
 		unique: true
 	},
-	password: String,
+	password: {type: Object, set: hashPwd},
 	google: {
 		id: String,
 		name: String,
@@ -52,5 +60,18 @@ var User = new mongoose.Schema({
 User.methods.getStories = function () {
 	return Story.find({author: this._id}).exec();
 };
+
+function verifyPwd (user, rawPwd) {
+	var hashed = hashPwd(rawPwd);
+	if (hashed == user.password) return user;
+	else return false;
+}
+
+User.methods.findSecure = function (body) {
+	User.findOne({email: req.body.email})
+		.then(function(user){
+			return verifyPwd(user, rawPwd);
+		});
+}
 
 module.exports = db.model('User', User);
