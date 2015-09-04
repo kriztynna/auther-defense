@@ -6,7 +6,7 @@ var HttpError = require('../utils/HttpError');
 var User = require('../api/users/user.model');
 
 router.post('/login', function (req, res, next) {
-	User.findOne(req.body).exec()
+	User.findSecure(req.body).exec()
 	.then(function (user) {
 		if (!user) throw HttpError(401);
 		req.login(user, function () {
